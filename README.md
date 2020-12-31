@@ -1,3 +1,4 @@
+![to-do list landing](media/git_landing.png)
 # To-Do List #
 A To-Do list that makes it simple to cross out your accomplishments.
 ## Learned ##
