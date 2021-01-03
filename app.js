@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+const _ = require("lodash");
 
 const app = express();
 
@@ -10,13 +11,13 @@ app.use(bodyParser.urlencoded({extended:true}));
 app.use(express.static("public"));
 
 // MongoDB
-mongoose.connect("mongodb://localhost:27017/todolistDB", {useNewUrlParser: true});
+mongoose.connect("mongodb://localhost:27017/todolistDB", {useNewUrlParser: true, useUnifiedTopology: true});
 
 const itemsSchema = {
     name: String
 };
 
-const Item = mongoose.model("item", itemsSchema);
+const Item = mongoose.model("Item", itemsSchema);
 
 const item1 = new Item({
     name: "Welcome to your todo list!"
@@ -31,6 +32,13 @@ const item3 = new Item({
 });
 
 const defaultItems = [item1, item2, item3];
+
+const listSchema = {
+    name: String,
+    items: [itemsSchema]
+  };
+  
+const List = mongoose.model("List", listSchema);
 
 // Routes
 app.get("/", function(req, res){
@@ -55,8 +63,26 @@ app.get("/", function(req, res){
     
 });
 
-app.get("/work", function(req, res){
-    res.render("list", {listTitle: "Work List", newListItems: workItems});
+app.get("/:customListName", function(req, res){
+    const customListName = _.capitalize(req.params.customListName);
+  
+    List.findOne({name: customListName}, function(err, foundList){
+      if (!err){
+        if (!foundList){
+          //Create a new list
+          const list = new List({
+            name: customListName,
+            items: defaultItems
+          });
+          list.save();
+          res.redirect("/" + customListName);
+        } else {
+          //Show an existing list
+  
+          res.render("list", {listTitle: foundList.name, newListItems: foundList.items});
+        }
+      }
+    });
 });
 
 app.get("/about", function(req,res){
@@ -66,19 +92,26 @@ app.get("/about", function(req,res){
 // Posts
 app.post("/", function(req, res){
 
+    const itemName = req.body.newItem;
+    const listName = req.body.list;
+  
     const item = new Item({
-        name: req.body.newItem
+      name: itemName
     });
-
-    item.save();
-
-    if (req.body.list === "Work") {
-        res.redirect("/work");
+  
+    if (listName === "Today"){
+      item.save();
+      res.redirect("/");
     } else {
-        res.redirect("/");
+      List.findOne({name: listName}, function(err, foundList){
+        foundList.items.push(item);
+        foundList.save();
+        res.redirect("/" + listName);
+      });
     }
     
 });
+
 
 app.post("/delete", function(req, res){
     const itemId = req.body.checkbox;
