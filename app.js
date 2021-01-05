@@ -12,7 +12,7 @@ app.use(bodyParser.urlencoded({extended:true}));
 app.use(express.static("public"));
 
 // MongoDB
-mongoose.connect(`mongodb+srv://fidelhen:${keys.mongoAtlasPassword}@cluster0.v8mht.mongodb.net/todolistDB`, {useNewUrlParser: true, useUnifiedTopology: true});
+mongoose.connect(`${keys.mongoAtlasPort}/todolistDB`, {useNewUrlParser: true, useUnifiedTopology: true});
 
 const itemsSchema = {
     name: String
