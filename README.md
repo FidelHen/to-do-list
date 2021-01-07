@@ -7,6 +7,7 @@ A To-Do list that makes it simple to cross out your accomplishments.
 * Add JS files to main Node.js file
 * Use MongoDB locally to test out application
 * Use MongoDB Atlas cloud service
+* Implement security by using `process.env`
 ## Instructions to run ##
 1. Install packages by running `npm install`
 2. Add your mongoAtlas url in `mongoose.connect()`
