@@ -11,7 +11,7 @@ app.use(bodyParser.urlencoded({extended:true}));
 app.use(express.static("public"));
 
 // MongoDB
-mongoose.connect(`mongodb+srv://${process.env.MONGO_USERNMAE}:${process.env.MONGO_PASSWORD}@cluster0.v8mht.mongodb.net/todolistDB`, {useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false});
+mongoose.connect(`mongodb+srv://@cluster0.v8mht.mongodb.net/todolistDB`, {user: process.env.MONGO_USERNAME, pass: process.env.MONGO_PASSWORD,useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false});
 
 const itemsSchema = {
     name: String
@@ -44,15 +44,15 @@ const List = mongoose.model("List", listSchema);
 app.get("/", function(req, res){
 
     Item.find({}, function(err, docs){
-        if(docs.length === 0) {
+        if(!docs.length) {
             Item.insertMany(defaultItems, function(err){
-                if (err) {
-                    console.log(err);
-                } else {
-                    console.log("Sucessfully added!")
-                }
-            });
-            res.redirect("/");
+              if (err) {
+                  console.log(err);
+              } else {
+                  console.log("Sucessfully added!")
+              }
+          });
+          res.redirect("/");
         } else {
             res.render("list", {listTitle: "Today", newListItems: docs});
         }
